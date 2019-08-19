@@ -1,0 +1,51 @@
+# http://editorconfig.org/
+
+# DO NOT USE THIS: this may cause a lot of accidental changes.
+#[*]
+#charset = unset
+#end_of_line = lf
+#indent_size = 4
+#indent_style = space
+#insert_final_newline = true
+
+[*.sh]
+charset = unset
+end_of_line = lf
+indent_size = 2
+indent_style = space
+insert_final_newline = true
+
+[*.sln]
+charset = utf-8-bom
+end_of_line = crlf
+indent_size = 4
+indent_style = tab
+insert_final_newline = true
+
+[*.vcproj]
+charset = utf-8-bom
+end_of_line = crlf
+indent_size = 4
+indent_style = tab
+insert_final_newline = true
+
+[*.{c,cc,cpp,cxx,h,hh,hpp,hxx}]
+charset = unset
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+
+[*.{vcxproj,vcxproj.filters,props}]
+charset = utf-8-bom
+end_of_line = crlf
+indent_size = 2
+indent_style = space
+insert_final_newline = false
+
+[{Makefile,Makefile.*,*.mak}]
+charset = unset
+end_of_line = lf
+indent_size = 8
+indent_style = tab
+insert_final_newline = true

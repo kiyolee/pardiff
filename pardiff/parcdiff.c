@@ -6,7 +6,7 @@
  *                                                                         *
  * Usage: diff -C4 f1 f2 | parcdiff                                        *
  *                                                                         *
- *************************************************************************** 
+ ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -15,13 +15,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#undef _XOPEN_SOURCE_EXTENDED
-#undef _XOPEN_SOURCE 
-#undef _POSIX_SOURCE
-#define _HPUX_SOURCE
-
-#include <string.h>
 #include "pardiff.h"
+
+#ifndef _MSC_VER
+#define _strdup strdup
+#endif
 
 #define TAB_STOP 4
 
@@ -72,9 +70,6 @@ pardiff_context_main(int argc, char *argv[])
 {
     FILE *fp;
     pardiff_t ctx;
-    struct winsize winsz;
-    int sts;
-    char *cp;
 
     memset(&ctx, 0, sizeof(ctx));
     if (argc == 2) {
@@ -88,26 +83,11 @@ pardiff_context_main(int argc, char *argv[])
         }
     }
 
-    cp = getenv("DIFFER_WIDTH");
-    if (!cp) {
-        cp = getenv("DIFFER_COLS");
-    }
-    if (cp) {
-        ctx.window_width = atoi(cp);
-    }
-    else {
-        sts = ioctl(open("/dev/tty", O_RDONLY), TIOCGWINSZ, &winsz);
-        if (sts == 0) {
-            ctx.window_width = winsz.ws_col;
-        }
-        else {
-            ctx.window_width = PARDIFF_DFLT_TERM_WID;
-        }
-    }
+    ctx.window_width = get_term_width();
 
     if (get_diff_file_names(fp, &ctx) == 1) {
         return 1;
-    } 
+    }
     process_file(fp, &ctx);
     return 0;
 }
@@ -122,7 +102,7 @@ int add_list(list_t *list, char *in_line)
         return 1;
     }
 
-    element->line = strdup(in_line);
+    element->line = _strdup(in_line);
     if (!element->line) {
         free(element);
         return 1;
@@ -197,14 +177,14 @@ void free_list(list_t *list)
 
 void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
 {
-    char *cp1;
-    char *cp2;
+    char *cp1 = NULL;
+    char *cp2 = NULL;
     int len;
+    int maxlen;
     int i;
     int width1;
     int width2;
-    int length_diff = 0; 
-    int max;
+    int length_diff = 0;
 
     if (get_list_len(l1) <= 0 && get_list_len(l2) <= 0) {
         return;
@@ -213,34 +193,34 @@ void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     /* get line max length of each list */
     get_list_first(l1);
     get_list_first(l2);
-    max = -1;
+    maxlen = -1;
     do {
         cp1 = get_list_next(l1);
         if (cp1) {
-            len = strlen(cp1);
-            if (max < len) {
-                max = len;
+            len = (int)strlen(cp1);
+            if (maxlen < len) {
+                maxlen = len;
             }
         }
     } while (cp1);
-    ctx->width1 = max;
+    ctx->width1 = maxlen;
 
-    max = -1;
+    maxlen = -1;
     do {
         cp2 = get_list_next(l2);
         if (cp2) {
-            len = strlen(cp2);
-            if (max < len) {
-                max = len;
+            len = (int)strlen(cp2);
+            if (maxlen < len) {
+                maxlen = len;
             }
         }
     } while (cp2);
-    ctx->width2 = max;
+    ctx->width2 = maxlen;
 
     /*
      * Print output adds 3 characters, so must subtract from window width
      */
-    if (((ctx->width1 + 3) <= ctx->window_width/2 && 
+    if (((ctx->width1 + 3) <= ctx->window_width/2 &&
          (ctx->width2 + 3) <= ctx->window_width/2) ||
          ((ctx->width1 + ctx->width2 + 4) > ctx->window_width))
     {
@@ -257,17 +237,17 @@ void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     }
 
     printf("+%s", ctx->linenum1);
-    for (i=strlen(ctx->linenum1); i<width1; i++) {
+    for (i = (int)strlen(ctx->linenum1); i < width1; i++) {
         putchar('-');
     }
     printf("+%s", ctx->linenum2);
-    for (i=strlen(ctx->linenum2); i<width2; i++) {
+    for (i = (int)strlen(ctx->linenum2); i < width2; i++) {
         putchar('-');
     }
     printf("+\n");
 
     /*
-     * When the number of lines before the first change line (line 
+     * When the number of lines before the first change line (line
      * starting with !) differ, must emit blank additional blank
      * lines to make these lines align.
      */
@@ -299,7 +279,7 @@ void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
         putchar('|');
         if (cp1) {
             printf("%.*s", width1, cp1);
-            len = strlen(cp1);
+            len = (int)strlen(cp1);
         }
         if (len < width1) {
             printf("%*c", width1-len, ' ');
@@ -309,7 +289,7 @@ void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
         len = 0;
         if (cp2) {
             printf("%.*s", width2, cp2);
-            len = strlen(cp2);
+            len = (int)strlen(cp2);
         }
         if (len < width2) {
             printf("%*c", width2-len, ' ');
@@ -339,7 +319,6 @@ void process_file(FILE *fp, pardiff_t *ctx)
     list_t list1;
     list_t list2;
     int linenum;
-    int i;
 
     ctx->linenum1[0] = ctx->linenum2[0] = '\0';
     memset(&list1, 0, sizeof(list1));
@@ -370,7 +349,7 @@ void process_file(FILE *fp, pardiff_t *ctx)
 
                 cp += 4;
                 for (ep=cp; *ep && *ep != ' '; ep++)
-                    ; 
+                    ;
                 strncat(ctx->linenum1, cp, ep-cp);
 
                 free_list(&list1);
@@ -385,7 +364,7 @@ void process_file(FILE *fp, pardiff_t *ctx)
 
                 cp += 4;
                 for (ep=cp; *ep && *ep != ' '; ep++)
-                    ; 
+                    ;
                 strncat(ctx->linenum2, cp, ep-cp);
             }
             else {

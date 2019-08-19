@@ -10,7 +10,7 @@
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   * 
+ *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
 
@@ -18,14 +18,16 @@
 
 
 /* buffer to hold one line (similar to max size for vi) */
-static char nextline[PARDIFF_LINE_BUF_SIZE];
-static char putline[PARDIFF_LINE_BUF_SIZE];
+static char nextline[PARDIFF_LINE_BUF_SIZE] = "";
+static char putline[PARDIFF_LINE_BUF_SIZE] = "";
 
 
 /* other format data */
-static int col_wid;
-static int term_wid;
-static int left_fill, center_fill, right_fill;
+static int col_wid = 0;
+static int term_wid = 0;
+static int left_fill = 0;
+static int center_fill = 0;
+static int right_fill = 0;
 static int got_input = 0;
 static int expand_tab_option = 1;
 
@@ -33,31 +35,25 @@ static int expand_tab_option = 1;
 /* parser states */
 typedef enum parser_states {
     psUnknown,
-    psNeedCmd,			/* looking for next a, d or c */
-    psEchoingF1,		/* copying d text */
-    psEchoingF2,		/* copying a text */
-    psSavingF1,			/* saving file 1 c text */
-    psChewingSep,		/* get rid of dashes between f1 and f2 c text */
-    psEchoingSav		/* outputting parallel text */
+    psNeedCmd,                  /* looking for next a, d or c */
+    psEchoingF1,                /* copying d text */
+    psEchoingF2,                /* copying a text */
+    psSavingF1,                 /* saving file 1 c text */
+    psChewingSep,               /* get rid of dashes between f1 and f2 c text */
+    psEchoingSav                /* outputting parallel text */
 } parserStates;
 
 
 static void
-print_loop (
-    int  x,
-    char c
-    )
+print_loop(int x, char c)
 {
     for ( ; x > 0; --x) {
-	printf("%c", c);
+        printf("%c", c);
     }
 }
 
 static void
-put_number_pair (
-    int n1,
-    int n2
-    )
+put_number_pair(int n1, int n2)
 {
     /* this routine uses the hard-coded 11-char field for file line numbers */
     if (n1 == n2) {
@@ -68,13 +64,7 @@ put_number_pair (
 }
 
 static void
-put_number_line (
-    int  x1,
-    int  x2,
-    int  y1,
-    int  y2,
-    char c
-    )
+put_number_line(int  x1, int  x2, int  y1, int  y2, char c)
 {
     got_input = 1;
     print_loop(left_fill, '-');
@@ -88,21 +78,19 @@ put_number_line (
 }
 
 static void
-put_fill( void )
+put_fill(void)
 {
     print_loop(col_wid, ' ');
 }
 
 static void
-put_sep( void )
+put_sep(void)
 {
     printf(" | ");
 }
 
 static void
-put_line (
-    char *str
-    )
+put_line(char *str)
 {
     int i, i_off, put_i, tab_size;
     int filling = 0;
@@ -112,21 +100,21 @@ put_line (
      * one or more characters in the output line.
      */
     for (i = i_off = 0, put_i = 0; put_i < col_wid; ++i) {
-	if (filling || (str[i] == '\n')) {
-	    putline[put_i++] = ' ';
-	    filling = 1;
-	} else if ((str[i] == '\t') && expand_tab_option) {
-	    /* Assume standard tab-stops and calculate how many spaces this
-	     * one looked like in the input file.
-	     */
-	    tab_size = 8 - ((i + i_off) % 8);
-	    i_off += tab_size - 1;
-	    for ( ; tab_size > 0; tab_size--) {
-		putline[put_i++] = ' ';
-	    }
-	} else {
-	    putline[put_i++] = str[i];
-	}
+        if (filling || (str[i] == '\n')) {
+            putline[put_i++] = ' ';
+            filling = 1;
+        } else if ((str[i] == '\t') && expand_tab_option) {
+            /* Assume standard tab-stops and calculate how many spaces this
+             * one looked like in the input file.
+             */
+            tab_size = 8 - ((i + i_off) % 8);
+            i_off += tab_size - 1;
+            for ( ; tab_size > 0; tab_size--) {
+                putline[put_i++] = ' ';
+            }
+        } else {
+            putline[put_i++] = str[i];
+        }
     }
 
     putline[col_wid] = '\0';
@@ -141,19 +129,17 @@ static int sav_ind, put_ind;
 #define SAV_GROW_INCR 10
 
 static void
-init_new_sav_lines( void )
+init_new_sav_lines(void)
 {
     int i;
 
     for (i = sav_arsz - SAV_GROW_INCR; i < sav_arsz; ++i) {
-	sav_array[i] = (char *)malloc(sizeof(char)*(col_wid+1));
+        sav_array[i] = (char *)malloc(sizeof(char)*(col_wid+1));
     }
 }
 
 static void
-sav_line (
-    char *str
-    )
+sav_line(char *str)
 {
     int i;
     int filling = 0;
@@ -161,33 +147,32 @@ sav_line (
 
     /* if first call, init things */
     if (sav_arsz == 0) {
-	sav_arsz = SAV_GROW_INCR;
-	sav_array = (char **)malloc(sizeof(char *)*sav_arsz);
-	init_new_sav_lines();
-	sav_ind = 0;
+        sav_arsz = SAV_GROW_INCR;
+        sav_array = (char **)malloc(sizeof(char *)*sav_arsz);
+        init_new_sav_lines();
+        sav_ind = 0;
     }
 
     if (putting) {
-	/* restarting... */
-	sav_ind = 0;
+        /* restarting... */
+        sav_ind = 0;
 
-	putting = 0;
+        putting = 0;
 
     } else if (sav_ind == sav_arsz) {
-	sav_arsz += SAV_GROW_INCR;
-	sav_array =
-		(char **)realloc((char *)sav_array, sizeof(char *)*sav_arsz);
-	init_new_sav_lines();
+        sav_arsz += SAV_GROW_INCR;
+        sav_array = (char **)realloc((char *)sav_array, sizeof(char *)*sav_arsz);
+        init_new_sav_lines();
     }
 
     sav_str = sav_array[sav_ind];
     for (i = 0; i < col_wid; ++i) {
-	if (filling || (str[i] == '\n')) {
-	    sav_str[i] = ' ';
-	    filling = 1;
-	} else {
-	    sav_str[i] = str[i];
-	}
+        if (filling || (str[i] == '\n')) {
+            sav_str[i] = ' ';
+            filling = 1;
+        } else {
+            sav_str[i] = str[i];
+        }
     }
     sav_str[i] = '\0';
 
@@ -195,76 +180,72 @@ sav_line (
 }
 
 static void
-put_sav_line( void )
+put_sav_line(void)
 {
     if (!putting) {
-	put_ind = 0;
-	putting = 1;
+        put_ind = 0;
+        putting = 1;
     }
 
     if (put_ind < sav_ind) {
-    	put_line(sav_array[put_ind++]);
+        put_line(sav_array[put_ind++]);
     } else {
-	put_fill();
+        put_fill();
     }
 }
 
 static void
-put_other_sav( void )
+put_other_sav(void)
 {
     while (put_ind < sav_ind) {
-	put_line(sav_array[put_ind++]);
-	put_sep();
-	put_fill();
-	printf("\n");
+        put_line(sav_array[put_ind++]);
+        put_sep();
+        put_fill();
+        printf("\n");
     }
+}
+
+int
+get_term_width(void)
+{
+    const char *cp = getenv("PARDIFF_WIDTH");
+    if (cp) {
+        return atoi(cp);
+    }
+#ifndef PARDIFF_IS_DOS
+    struct winsize wnsz; /* OS struct storing terminal size */
+    if (ioctl(open("/dev/tty", O_RDONLY), TIOCGWINSZ, &wnsz) == 0) {
+        return wnsz.ws_col;
+    }
+#endif
+    return PARDIFF_DFLT_TERM_WID;
 }
 
 /*
  * Main routine
  */
 static int
-pardiff_main (
-    int argc,
-    char *argv[]
-    )
+pardiff_main(int argc, char *argv[])
 {
-    int eff_term_wid;		/* either real term wid or one less */
-    int x1, x2, y1, y2;		/* parsed numbers from cmd lines */
-    char *strhead, *strnext;
-    char cmdChar;		/* a, d or c */
+    int eff_term_wid = 0;       /* either real term wid or one less */
+    int x1 = 0;
+    int x2 = 0;
+    int y1 = 0;
+    int y2 = 0;                 /* parsed numbers from cmd lines */
+    char *strhead = NULL;
+    char *strnext = NULL;
+    char cmdChar = 0;           /* a, d or c */
+    parserStates curState = psUnknown;  /* state of parser machine */
 #ifndef PARDIFF_IS_DOS
-    struct winsize wnsz;	/* OS struct storing terminal size */
-    int status;			/* status of ioctl call */
-#endif
-    parserStates curState;	/* state of parser machine */
-    int convertCrlf;            /* T => convert lines to UNIX EOL format */
-    int line_len;               /* store the input line length */
-
-#ifndef PARDIFF_IS_DOS
-    convertCrlf = 1;
+    const int convertCrlf = 1;  /* T => convert lines to UNIX EOL format */
 #else
-    convertCrlf = 0;
+    const int convertCrlf = 0;
 #endif
 
-#ifndef PARDIFF_IS_DOS
-    /* get the term width */
-    status = ioctl(open("/dev/tty", O_RDONLY), TIOCGWINSZ, &wnsz);
+    (void)argc;
 
     /* Calculate format numbers */
-    if (status == 0) {
-	term_wid = wnsz.ws_col;
-    } else {
-	term_wid = PARDIFF_DFLT_TERM_WID;
-    }
-#else
-    term_wid = PARDIFF_DFLT_TERM_WID;
-#endif
-
-#if DEBUG
-    printf("status is  %d, using %d termwid, ws_col=%d\n", status,
-    	term_wid, wnsz.ws_col);
-#endif
+    term_wid = get_term_width();
 
     col_wid = (term_wid - 3) / 2;
     eff_term_wid = (col_wid * 2) + 3;
@@ -277,20 +258,21 @@ pardiff_main (
     center_fill = eff_term_wid - left_fill - right_fill - 22;
 
     curState = psNeedCmd;
-    while (1) {
-	/*
-	 * Keep getting the next line till NULL is returned.
-	 */
-	if (fgets(nextline, PARDIFF_LINE_BUF_SIZE, stdin) == (char *)0) break;
+    for (;;)
+    {
+        /*
+         * Keep getting the next line till NULL is returned.
+         */
+        if (fgets(nextline, PARDIFF_LINE_BUF_SIZE, stdin) == (char *)0) break;
 
         /*
          * Preprocess lines to get a consistent EOL
          */
         if (convertCrlf) {
 #if defined __NetBSD__ || defined __FreeBSD__ || defined __OpenBSD__
-            line_len = strlen(nextline);
+            size_t line_len = strlen(nextline);
 #else
-            line_len = strnlen(nextline, PARDIFF_LINE_BUF_SIZE); 
+            size_t line_len = strnlen(nextline, PARDIFF_LINE_BUF_SIZE);
 #endif
             if (line_len > 2 && nextline[line_len - 2] == 0xd) {
                 nextline[line_len - 2] = '\n';
@@ -298,122 +280,122 @@ pardiff_main (
             }
         }
 
-	/*
-	 * Interpret this line based on the current state of things.
-	 */
-	switch (curState) {
-	    case psNeedCmd:
-		/*
-		 * Doing exact parsing so diff output lines can be extracted
-		 * out of streams that contain more than just diff output.
-		 */
-		strhead = nextline;
-		x1 = (int)strtol(strhead, &strnext, 10);
-		if (strhead == strnext) break;
-		if (strnext[0] == ',') {
-		    strhead = strnext + 1;
-		    x2 = (int)strtol(strhead, &strnext, 10);
-		    if (strhead == strnext) break;
-		} else {
-		    x2 = x1;
-		}
+        /*
+         * Interpret this line based on the current state of things.
+         */
+        switch (curState) {
+            case psNeedCmd:
+                /*
+                 * Doing exact parsing so diff output lines can be extracted
+                 * out of streams that contain more than just diff output.
+                 */
+                strhead = nextline;
+                x1 = (int)strtol(strhead, &strnext, 10);
+                if (strhead == strnext) break;
+                if (strnext[0] == ',') {
+                    strhead = strnext + 1;
+                    x2 = (int)strtol(strhead, &strnext, 10);
+                    if (strhead == strnext) break;
+                } else {
+                    x2 = x1;
+                }
 
-		cmdChar = strnext[0];
-		strhead = strnext + 1;
-		y1 = (int)strtol(strhead, &strnext, 10);
-		if (strhead == strnext) break;
-		if (strnext[0] == ',') {
-		    strhead = strnext + 1;
-		    y2 = (int)strtol(strhead, &strnext, 10);
-		    if (strhead == strnext) break;
-		} else {
-		    y2 = y1;
-		}
+                cmdChar = strnext[0];
+                strhead = strnext + 1;
+                y1 = (int)strtol(strhead, &strnext, 10);
+                if (strhead == strnext) break;
+                if (strnext[0] == ',') {
+                    strhead = strnext + 1;
+                    y2 = (int)strtol(strhead, &strnext, 10);
+                    if (strhead == strnext) break;
+                } else {
+                    y2 = y1;
+                }
 
-		/* decide the next state based on the diff command type */
-		switch (cmdChar) {
-		    case 'a':
-			curState = psEchoingF2;
-			break;
-		    case 'd':
-			curState = psEchoingF1;
-			break;
-		    case 'c':
-			curState = psSavingF1;
-			break;
-		    default:
-			break;
-		}
+                /* decide the next state based on the diff command type */
+                switch (cmdChar) {
+                    case 'a':
+                        curState = psEchoingF2;
+                        break;
+                    case 'd':
+                        curState = psEchoingF1;
+                        break;
+                    case 'c':
+                        curState = psSavingF1;
+                        break;
+                    default:
+                        break;
+                }
 
-		/*
-		 * Output the line number header line if we just got a valid
-		 * command.
-		 */
-		put_number_line(x1, x2, y1, y2, cmdChar);
+                /*
+                 * Output the line number header line if we just got a valid
+                 * command.
+                 */
+                put_number_line(x1, x2, y1, y2, cmdChar);
 
-		/* convert x2,y2 into line counts */
-		x2 = x2 - x1 + 1;
-		y2 = y2 - y1 + 1;
-		break;
+                /* convert x2,y2 into line counts */
+                x2 = x2 - x1 + 1;
+                y2 = y2 - y1 + 1;
+                break;
 
-	    case psEchoingF1:
-		put_line(nextline + 2);
-		put_sep();
-		put_fill();
-		printf("\n");
-		--x2;
-		if (x2 == 0) {
-		    curState = psNeedCmd;
-		}
-		break;
+            case psEchoingF1:
+                put_line(nextline + 2);
+                put_sep();
+                put_fill();
+                printf("\n");
+                --x2;
+                if (x2 == 0) {
+                    curState = psNeedCmd;
+                }
+                break;
 
-	    case psEchoingF2:
-		put_fill();
-		put_sep();
-		put_line(nextline + 2);
-		printf("\n");
-		--y2;
-		if (y2 == 0) {
-		    curState = psNeedCmd;
-		}
-		break;
+            case psEchoingF2:
+                put_fill();
+                put_sep();
+                put_line(nextline + 2);
+                printf("\n");
+                --y2;
+                if (y2 == 0) {
+                    curState = psNeedCmd;
+                }
+                break;
 
-  	    case psSavingF1:
-		sav_line(nextline + 2);
-		--x2;
-		if (x2 == 0) {
-		    curState = psChewingSep;
-		}
-		break;
+            case psSavingF1:
+                sav_line(nextline + 2);
+                --x2;
+                if (x2 == 0) {
+                    curState = psChewingSep;
+                }
+                break;
 
-	    case psChewingSep:
-		curState = psEchoingSav;
-		break;
+            case psChewingSep:
+                curState = psEchoingSav;
+                break;
 
-	    case psEchoingSav:
-		put_sav_line();
-		put_sep();
-		put_line(nextline + 2);
-		printf("\n");
-		--y2;
-		if (y2 == 0) {
-		    put_other_sav();
-		    curState = psNeedCmd;
-		}
-		break;
+            case psEchoingSav:
+                put_sav_line();
+                put_sep();
+                put_line(nextline + 2);
+                printf("\n");
+                --y2;
+                if (y2 == 0) {
+                    put_other_sav();
+                    curState = psNeedCmd;
+                }
+                break;
 
-	    case psUnknown:
-	    default:
-		fprintf(stderr, "%s: internal error, in state %d\n",
-			argv[0], curState);
-		exit(1);
-		break;
-	}
+            case psUnknown:
+            default:
+                fprintf(stderr, "%s: internal error, in state %d\n",
+                        argv[0], curState);
+                exit(1);
+                break;
+        }
     }
 
     /* done */
     if (got_input) {
-	print_loop(eff_term_wid, '-'); printf("\n");
+        print_loop(eff_term_wid, '-'); printf("\n");
     }
 
     return 0;
@@ -424,7 +406,7 @@ pardiff_usage(void)
 {
     fprintf(stderr, "usage: pardiff [-C]\n");
     fprintf(stderr, "       -C:  parse context diff format\n");
-    
+
     return 1;
 }
 
@@ -432,10 +414,7 @@ pardiff_usage(void)
  * Main routine
  */
 int
-main (
-    int argc,
-    char *argv[]
-    )
+main(int argc, char *argv[])
 {
     int context_mode;
     int argi;

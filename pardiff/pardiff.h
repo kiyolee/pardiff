@@ -1,4 +1,3 @@
-
 /***************************************************************************
   pardiff.h  -  Copyright (C) 2001 by Andy Wiggin
 
@@ -11,20 +10,20 @@
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
  *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   * 
+ *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-
 
 #ifndef _PARDIFF_H_
 #define _PARDIFF_H_
 
+#define _GNU_SOURCE
+
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
 
-#ifndef __MSDOS__
-
+#if !defined(__MSDOS__) && !defined(_WIN32)
 /* include files to determine the width of the output terminal */
 #include <fcntl.h>
 #if defined __NetBSD__ || defined __FreeBSD__ || defined __OpenBSD__
@@ -38,7 +37,6 @@
 #define  PARDIFF_IS_DOS
 #endif
 
-
 /* buffer to hold one line (similar to max size for vi) */
 #define PARDIFF_LINE_BUF_SIZE 2048
 
@@ -48,13 +46,13 @@
 /*
  * Context diff filter
  */
-int pardiff_context_main(int, char *[]);
+extern int pardiff_context_main(int, char *[]);
 
 /*
  * Standard usage routine
  */
-int pardiff_usage(void);
- 
+extern int pardiff_usage(void);
 
-#endif
+extern int get_term_width(void);
 
+#endif // !def _PARDIFF_H_
