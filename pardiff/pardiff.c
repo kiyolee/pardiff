@@ -14,11 +14,9 @@
 
 #include "pardiff.h"
 
-
 /* buffer to hold one line (similar to max size for vi) */
 static char nextline[PARDIFF_LINE_BUF_SIZE] = "";
 static char putline[PARDIFF_LINE_BUF_SIZE] = "";
-
 
 /* other format data */
 static int col_wid = 0;
@@ -28,7 +26,6 @@ static int center_fill = 0;
 static int right_fill = 0;
 static int got_input = 0;
 static int expand_tab_option = 1;
-
 
 /* parser states */
 typedef enum parser_states {
@@ -40,7 +37,6 @@ typedef enum parser_states {
     psChewingSep,               /* get rid of dashes between f1 and f2 c text */
     psEchoingSav                /* outputting parallel text */
 } parserStates;
-
 
 static void
 print_loop(int x, char c)

@@ -56,7 +56,6 @@ static char *get_list_first(list_t *list);
 static char *get_list_next(list_t *list);
 static void free_list(list_t *list);
 
-
 /*
  * Context diff processing functions
  */
@@ -92,7 +91,6 @@ pardiff_context_main(int argc, char *argv[])
     return 0;
 }
 
-
 static int add_list(list_t *list, char *in_line)
 {
     list_element_t *element;
@@ -119,7 +117,6 @@ static int add_list(list_t *list, char *in_line)
     return 0;
 }
 
-
 static int get_list_len(list_t *list)
 {
     int len = -1;
@@ -129,7 +126,6 @@ static int get_list_len(list_t *list)
     }
     return len;
 }
-
 
 static char *get_list_first(list_t *list)
 {
@@ -146,7 +142,6 @@ static char *get_list_first(list_t *list)
     return cp;
 }
 
-
 static char *get_list_next(list_t *list)
 {
     char *cp = NULL;
@@ -158,7 +153,6 @@ static char *get_list_next(list_t *list)
     }
     return cp;
 }
-
 
 static void free_list(list_t *list)
 {
@@ -173,7 +167,6 @@ static void free_list(list_t *list)
     }
     memset(list, 0, sizeof(*list));
 }
-
 
 static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
 {
@@ -309,7 +302,6 @@ static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     printf("\n\n");
 }
 
-
 static void process_file(FILE *fp, pardiff_t *ctx)
 {
     char line[PARDIFF_LINE_BUF_SIZE];
@@ -389,7 +381,6 @@ static void process_file(FILE *fp, pardiff_t *ctx)
     print_lists(&list1, &list2, ctx);
 }
 
-
 int get_diff_file_names(FILE *fp, pardiff_t *ctx)
 {
     char line[PARDIFF_LINE_BUF_SIZE];
@@ -432,7 +423,6 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
     return 0;
 }
 
-
 static void detab_line(char *in_line)
 {
     char line_buf[PARDIFF_LINE_BUF_SIZE];
@@ -445,7 +435,7 @@ static void detab_line(char *in_line)
          * Count characters on input line
          */
         c_count++;
-        if(in_line[i] == '\t') {
+        if (in_line[i] == '\t') {
             /*
              * Loop puts spaces up to tabstop position before nth tabstop.
              * Trailing printf puts space in nth tabstop position.  c_count
