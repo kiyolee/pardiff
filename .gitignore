@@ -3,6 +3,7 @@
 *.opensdf
 *.sdf
 *~
+/Makefile
 /build-*/*/Debug
 /build-*/*/Release
 /build-*/*/x64/Debug
@@ -15,3 +16,8 @@
 /build-*/tests/*/x64/Release
 /build-*/x64/Debug
 /build-*/x64/Release
+/config.cache
+/config.h
+/config.status
+/pardiff/Makefile
+/stamp-h
