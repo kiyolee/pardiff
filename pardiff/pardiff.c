@@ -1,11 +1,9 @@
 /***************************************************************************
-  pardiff.c  -  Copyright (C) 1992-2001 by Andy Wiggin
-
-   Convert standard diff output to a parallel format
-
- ***************************************************************************/
-
-/***************************************************************************
+ * pardiff.c  -  Copyright (C) 1992-2001 by Andy Wiggin                    *
+ *                                                                         *
+ * Convert standard diff output to a parallel format.                      *
+ *                                                                         *
+ ***************************************************************************
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -401,7 +399,7 @@ pardiff_main(int argc, char *argv[])
     return 0;
 }
 
-int
+static int
 pardiff_usage(void)
 {
     fprintf(stderr, "usage: pardiff [-C]\n");

@@ -50,20 +50,20 @@ typedef struct _list_t {
 /*
  * Linked list API
  */
-int  add_list(list_t *list, char *in_line);
-int  get_list_len(list_t *list);
-char *get_list_first(list_t *list);
-char *get_list_next(list_t *list);
-void free_list(list_t *list);
+static int  add_list(list_t *list, char *in_line);
+static int  get_list_len(list_t *list);
+static char *get_list_first(list_t *list);
+static char *get_list_next(list_t *list);
+static void free_list(list_t *list);
 
 
 /*
  * Context diff processing functions
  */
-int  get_diff_file_names(FILE *fp, pardiff_t *ctx);
-void process_file(FILE *fp, pardiff_t *ctx);
-void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx);
-void detab_line(char *in_line);
+static int  get_diff_file_names(FILE *fp, pardiff_t *ctx);
+static void process_file(FILE *fp, pardiff_t *ctx);
+static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx);
+static void detab_line(char *in_line);
 
 int
 pardiff_context_main(int argc, char *argv[])
@@ -93,7 +93,7 @@ pardiff_context_main(int argc, char *argv[])
 }
 
 
-int add_list(list_t *list, char *in_line)
+static int add_list(list_t *list, char *in_line)
 {
     list_element_t *element;
 
@@ -120,7 +120,7 @@ int add_list(list_t *list, char *in_line)
 }
 
 
-int get_list_len(list_t *list)
+static int get_list_len(list_t *list)
 {
     int len = -1;
 
@@ -131,7 +131,7 @@ int get_list_len(list_t *list)
 }
 
 
-char *get_list_first(list_t *list)
+static char *get_list_first(list_t *list)
 {
     char *cp = NULL;
 
@@ -147,7 +147,7 @@ char *get_list_first(list_t *list)
 }
 
 
-char *get_list_next(list_t *list)
+static char *get_list_next(list_t *list)
 {
     char *cp = NULL;
     if (list) {
@@ -160,7 +160,7 @@ char *get_list_next(list_t *list)
 }
 
 
-void free_list(list_t *list)
+static void free_list(list_t *list)
 {
     list_element_t *cur;
     list_element_t *next;
@@ -175,7 +175,7 @@ void free_list(list_t *list)
 }
 
 
-void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
+static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
 {
     char *cp1 = NULL;
     char *cp2 = NULL;
@@ -310,7 +310,7 @@ void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
 }
 
 
-void process_file(FILE *fp, pardiff_t *ctx)
+static void process_file(FILE *fp, pardiff_t *ctx)
 {
     char line[PARDIFF_LINE_BUF_SIZE];
     char *cp;
@@ -433,7 +433,7 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
 }
 
 
-void detab_line(char *in_line)
+static void detab_line(char *in_line)
 {
     char line_buf[PARDIFF_LINE_BUF_SIZE];
     int  c_count;

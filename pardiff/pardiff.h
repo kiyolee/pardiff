@@ -48,11 +48,6 @@
  */
 extern int pardiff_context_main(int, char *[]);
 
-/*
- * Standard usage routine
- */
-extern int pardiff_usage(void);
-
 extern int get_term_width(void);
 
 #endif // !def _PARDIFF_H_
