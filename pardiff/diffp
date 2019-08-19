@@ -1,0 +1,2 @@
+#!/bin/sh
+diff $1 $2 | pardiff | ${PAGER:=more}

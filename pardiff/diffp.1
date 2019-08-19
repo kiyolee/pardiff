@@ -1,0 +1,31 @@
+.\" diffp man page
+.TH DIFFP 1
+.SH NAME
+diffp \- display file diffs side-by-side
+.SH SYNOPSIS
+.B diffp
+from-file to-file
+
+.SH DESCRIPTION
+.IR Diffp
+is a shell script which invokes diff
+on the given file argurments,
+and sends the results to
+.IR pardiff ,
+and then to the pager given by the
+.IR PAGER
+environment variable.
+
+.SH ENVIRONMENT
+.IR Diffp
+uses the following environment variables, if they exist:
+.TP
+.B PAGER
+Progam to use to show output one page at a time. Default is
+.IR more .
+
+.SH SEE ALSO
+diff(1), pardiff(1), more(1)
+
+.SH AUTHOR
+Andy Wiggin

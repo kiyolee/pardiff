@@ -1,0 +1,14 @@
+Begin3
+Title:          Pardiff 
+Version:        0.9.4
+Entered-date:
+Description:    A program to display diff output in a parallel (side-by-side) format.
+Keywords:        
+Author:         Andy Wiggin <awiggin@users.sourceforge.com>
+Maintained-by:  Andy Wiggin <awiggin@users.sourceforge.com>
+Primary-site:   	        
+Home-page:      http://pardiff.sourceforge.net
+Original-site:  
+Platforms:      Linux and other Unices, DOS
+Copying-policy: GNU Public License
+End

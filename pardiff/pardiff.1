@@ -1,0 +1,42 @@
+.\" pardiff man page
+.TH PARDIFF 1
+.SH NAME
+pardiff \- display file diffs side-by-side
+.SH SYNOPSIS
+.B pardiff
+[options]
+
+.SH DESCRIPTION
+.IR Pardiff
+accepts the output of
+.IR diff
+on stdin,
+converts it to a side-by-side format,
+and writes it to stdout.
+.PP
+The output format emulates that of DIFF/PARALLEL on VMS.
+Lines are truncated as necessary to preserve the
+side-by-side formatting to the current terminal width.
+
+.SH OPTIONS
+.TP
+-C
+Parse context diff format instead of standard diff format
+
+.SH DIAGNOSTICS
+.IR Pardiff
+attempts to parse
+.IR diff
+output exactly,
+and will throw away what it considers garbage.
+.PP
+TAB characters and line numbers with more than five digits
+can throw off the output formatting.
+
+.SH SEE ALSO
+diff(1), diffp(1)
+
+.SH AUTHOR
+Andy Wiggin
+.br
+Context diff filter by Adam Bernstein

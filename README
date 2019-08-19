@@ -1,0 +1,38 @@
+Pardiff -- convert standard diff output to a parallel format
+
+History:
+
+I wrote pardiff to emulate the /PARALLEL option of the diff command in
+the VMS operating system. This option caused the file differences to be
+output in a side-by-side format. Pardiff provides a very similar function,
+but is implemented as a post-process to diff.
+
+Pardiff was originally developed on a Sun workstation (I don't recall
+the OS version) circa 1992. It was subsequently ported to DOS, where it has
+served under native DOS, and "DOS boxes" under Windows 3.1, 95, and NT.
+
+Usage:
+
+Pardiff is a post-processor for diff output, so it simply reads from
+stdin and writes to stdout. A typical usage is:
+
+    % diff file1 file2 | pardiff | more
+
+This particular command is implemented as a shell script, called diffp,  that
+is included with the pardiff distribution. Therefore, the above command can
+be run as:
+
+    % diffp file1 file2
+
+Features:
+
+Pardiff has only one feature, which is that it is smart enough (under
+UNIX-like OSs) to automatically detect the width of the output terminal
+and adjust it's column formatting accordingly.
+
+Problems:
+
+The section divider formatting is incorrect for line numbers with six or
+more digits.
+
+TAB characters can throw off the formatting.
