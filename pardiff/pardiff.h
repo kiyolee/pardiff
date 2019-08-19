@@ -25,13 +25,13 @@
 
 #if !defined(__MSDOS__) && !defined(_WIN32)
 /* include files to determine the width of the output terminal */
+#include <sys/ioctl.h>
 #include <fcntl.h>
 #if defined __NetBSD__ || defined __FreeBSD__ || defined __OpenBSD__
 #include <sys/ttycom.h>
 #else
 #include <termio.h>
 #endif
-
 #else
 /* this macro is only defined if compiling under MS-DOS */
 #define  PARDIFF_IS_DOS

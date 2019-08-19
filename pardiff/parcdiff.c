@@ -298,11 +298,11 @@ static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     } while (cp1 || cp2);
 
     putchar('+');
-    for (i=0; i<width1; i++) {
+    for (i = 0; i < width1; i++) {
         putchar('-');
     }
     putchar('+');
-    for (i=0; i<width2; i++) {
+    for (i = 0; i < width2; i++) {
         putchar('-');
     }
     putchar('+');
@@ -348,7 +348,7 @@ static void process_file(FILE *fp, pardiff_t *ctx)
                 ctx->change1 = ctx->change2 = -1;
 
                 cp += 4;
-                for (ep=cp; *ep && *ep != ' '; ep++)
+                for (ep = cp; *ep && *ep != ' '; ep++)
                     ;
                 strncat(ctx->linenum1, cp, ep-cp);
 
@@ -363,7 +363,7 @@ static void process_file(FILE *fp, pardiff_t *ctx)
                 linenum = 0;
 
                 cp += 4;
-                for (ep=cp; *ep && *ep != ' '; ep++)
+                for (ep = cp; *ep && *ep != ' '; ep++)
                     ;
                 strncat(ctx->linenum2, cp, ep-cp);
             }
@@ -440,7 +440,7 @@ static void detab_line(char *in_line)
     int  i;
     int  j;
 
-    for (i=0, c_count=0, j=0; in_line[i]; i++) {
+    for (i = 0, c_count = 0, j = 0; in_line[i]; i++) {
         /*
          * Count characters on input line
          */
