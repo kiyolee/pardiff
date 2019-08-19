@@ -42,7 +42,7 @@ static void
 print_loop(int x, char c)
 {
     for ( ; x > 0; --x) {
-        printf("%c", c);
+        putchar(c);
     }
 }
 
@@ -64,7 +64,7 @@ put_number_line(int  x1, int  x2, int  y1, int  y2, char c)
     print_loop(left_fill, '-');
     put_number_pair(x1, x2);
     print_loop(center_fill/2, '-');
-    printf("%c", c);
+    putchar(c);
     print_loop(center_fill/2, '-');
     put_number_pair(y1, y2);
     print_loop(right_fill, '-');
