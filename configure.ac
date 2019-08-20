@@ -1,9 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(Makefile.am)
+AC_INIT(pardiff,0.9.4)
+AC_CONFIG_SRCDIR(pardiff/pardiff.c)
+AM_INIT_AUTOMAKE
 
 AM_CONFIG_HEADER(config.h)
-
-AM_INIT_AUTOMAKE(pardiff,0.9.4)
 
 dnl Checks for programs.
 AC_PROG_CC
@@ -16,4 +16,4 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_OUTPUT(Makefile pardiff/Makefile )
+AC_OUTPUT(Makefile pardiff/Makefile)

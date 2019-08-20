@@ -3,7 +3,9 @@
 *.opensdf
 *.sdf
 *~
+.deps
 /Makefile
+/autom4te.cache
 /build-*/*/Debug
 /build-*/*/Release
 /build-*/*/x64/Debug
@@ -21,3 +23,4 @@
 /config.status
 /pardiff/Makefile
 /stamp-h
+/stamp-h1

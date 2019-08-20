@@ -1,4 +1,3 @@
-####### kdevelop will overwrite this part!!! (begin)##########
 bin_PROGRAMS = pardiff
 pardiff_SOURCES = pardiff.c  parcdiff.c pardiff.h
 pardiff_LDADD   = 
@@ -20,6 +19,3 @@ uninstall-local:
 	-rm -f ${bindir}/diffp
 	-rm -f ${mandir}/man1/pardiff.1
 	-rm -f ${mandir}/man1/diffp.1
-
-####### kdevelop will overwrite this part!!! (end)############
-bin_PROGRAMS = pardiff
