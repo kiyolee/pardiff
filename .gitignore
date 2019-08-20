@@ -6,6 +6,7 @@
 *.sdf
 *~
 .deps
+.vs
 /Makefile
 /autom4te.cache
 /build-*/*/Debug
