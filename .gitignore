@@ -1,5 +1,7 @@
 *.VC.db
+*.exe
 *.log
+*.o
 *.opensdf
 *.sdf
 *~
