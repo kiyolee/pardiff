@@ -33,6 +33,10 @@
 #include <termio.h>
 #endif
 #else
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 /* this macro is only defined if compiling under MS-DOS */
 #define  PARDIFF_IS_DOS
 #endif
@@ -46,7 +50,7 @@
 /*
  * Context diff filter
  */
-extern int pardiff_context_main(int, char *[]);
+extern int pardiff_context_main(const char *prog, FILE *fp);
 
 extern int get_term_width(void);
 

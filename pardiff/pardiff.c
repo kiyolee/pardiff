@@ -84,7 +84,7 @@ put_sep(void)
 }
 
 static void
-put_line(char *str)
+put_line(const char *str)
 {
     /* Read one char from the string each time through, mapping into
      * one or more characters in the output line.
@@ -117,7 +117,7 @@ static int sav_arsz = 0;
 static int putting = 0;
 static int sav_ind = 0;
 static int put_ind = 0;
-static int const SAV_GROW_INCR = 10;
+static const int SAV_GROW_INCR = 10;
 
 static void
 init_new_sav_lines(void)
@@ -129,7 +129,7 @@ init_new_sav_lines(void)
 }
 
 static void
-sav_line(char *str)
+sav_line(const char *str)
 {
     /* if first call, init things */
     if (sav_arsz == 0) {
@@ -199,16 +199,35 @@ put_other_sav(void)
 int
 get_term_width(void)
 {
+#ifdef _MSC_VER
+    char* cp = NULL;
+    size_t len = 0;
+    const int width = (_dupenv_s(&cp, &len, "PARDIFF_WIDTH") == 0 && cp) ? atoi(cp) : -1;
+    if (cp) free(cp);
+#else
     const char *cp = getenv("PARDIFF_WIDTH");
-    if (cp) {
-        return atoi(cp);
+    const int width = (cp) ? atoi(cp) : -1;
+#endif
+    if (width > 0) return width;
+
+#ifdef PARDIFF_IS_DOS
+#ifdef _WIN32
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)
+            || GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &csbi))
+    {
+        const int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+        //const int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+        if (columns > 0) return columns;
     }
-#ifndef PARDIFF_IS_DOS
+#endif
+#else
     struct winsize wnsz; /* OS struct storing terminal size */
     if (ioctl(open("/dev/tty", O_RDONLY), TIOCGWINSZ, &wnsz) == 0) {
         return wnsz.ws_col;
     }
 #endif
+
     return PARDIFF_DFLT_TERM_WID;
 }
 
@@ -216,7 +235,7 @@ get_term_width(void)
  * Main routine
  */
 static int
-pardiff_main(int argc, char *argv[])
+pardiff_main(const char *prog, FILE *fp)
 {
     int eff_term_wid = 0;       /* either real term wid or one less */
     int x1 = 0;
@@ -227,13 +246,11 @@ pardiff_main(int argc, char *argv[])
     char *strnext = NULL;
     char cmdChar = 0;           /* a, d or c */
     parserStates curState = psUnknown;  /* state of parser machine */
-#ifndef PARDIFF_IS_DOS
-    const int convertCrlf = 1;  /* T => convert lines to UNIX EOL format */
+#ifdef PARDIFF_IS_DOS
+    const int convertCrlf = 0;  /* T => convert lines to UNIX EOL format */
 #else
-    const int convertCrlf = 0;
+    const int convertCrlf = 1;
 #endif
-
-    (void)argc;
 
     /* Calculate format numbers */
     term_wid = get_term_width();
@@ -254,7 +271,7 @@ pardiff_main(int argc, char *argv[])
         /*
          * Keep getting the next line till NULL is returned.
          */
-        if (fgets(nextline, PARDIFF_LINE_BUF_SIZE, stdin) == (char *)0) break;
+        if (fgets(nextline, PARDIFF_LINE_BUF_SIZE, fp) == NULL) break;
 
         /*
          * Preprocess lines to get a consistent EOL
@@ -265,7 +282,7 @@ pardiff_main(int argc, char *argv[])
 #else
             size_t line_len = strnlen(nextline, PARDIFF_LINE_BUF_SIZE);
 #endif
-            if (line_len > 2 && nextline[line_len - 2] == 0xd) {
+            if (line_len > 2 && nextline[line_len - 2] == '\r') {
                 nextline[line_len - 2] = '\n';
                 nextline[line_len - 1] = '\0';
             }
@@ -378,7 +395,7 @@ pardiff_main(int argc, char *argv[])
             case psUnknown:
             default:
                 fprintf(stderr, "%s: internal error, in state %d\n",
-                        argv[0], curState);
+                        prog, curState);
                 exit(1);
                 break;
         }
@@ -393,11 +410,10 @@ pardiff_main(int argc, char *argv[])
 }
 
 static int
-pardiff_usage(void)
+pardiff_usage(const char *prog)
 {
-    fprintf(stderr, "usage: pardiff [-C]\n");
-    fprintf(stderr, "       -C:  parse context diff format\n");
-
+    fprintf(stderr, "usage: %s [-C] [file]\n", prog);
+    fprintf(stderr, "  -C  parse context diff format\n");
     return 1;
 }
 
@@ -407,26 +423,35 @@ pardiff_usage(void)
 int
 main(int argc, char *argv[])
 {
-    if (argc > 2) {
-        return pardiff_usage();
+    const char *const prog = argv[0];
+    const int context_mode = (argc > 1 && strcmp(argv[1], "-C") == 0);
+    const int argi = context_mode ? 2 : 1;
+    const char *const fn = (argc > argi) ? argv[argi] : NULL;
+
+    if (argc > (argi+1))
+        return pardiff_usage(argv[0]);
+
+    FILE* fp = NULL;
+    if (!fn || strcmp(fn, "-") == 0) {
+        fp = stdin;
     }
-
-    int context_mode = 0;
-
-    /* cheezy arg parsing */
-    for (int argi = 1; argi < argc; argi++) {
-        switch (argv[argi][1]) {
-        case 'C':
-            context_mode = 1;
-            break;
-        default:
-            return pardiff_usage();
+    else {
+#ifdef _MSC_VER
+        if (fopen_s(&fp, fn, "r") != 0) fp = NULL;
+#else
+        fp = fopen(fn, "r");
+#endif
+        if (!fp) {
+            perror("fopen");
+            return 1;
         }
     }
 
-    if (context_mode) {
-        return pardiff_context_main(argc, argv);
-    } else {
-        return pardiff_main(argc, argv);
-    }
+    const int rc = context_mode
+        ? pardiff_context_main(prog, fp)
+        : pardiff_main(prog, fp);
+
+    if (fp != stdin) fclose(fp);
+
+    return rc;
 }

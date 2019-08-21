@@ -50,7 +50,7 @@ typedef struct _list_t {
 /*
  * Linked list API
  */
-static int  add_list(list_t *list, char *in_line);
+static int  add_list(list_t *list, const char *in_line);
 static int  get_list_len(list_t *list);
 static char *get_list_first(list_t *list);
 static char *get_list_next(list_t *list);
@@ -59,39 +59,27 @@ static void free_list(list_t *list);
 /*
  * Context diff processing functions
  */
-static int  get_diff_file_names(FILE *fp, pardiff_t *ctx);
+static int  get_diff_file_names(const char *prog, FILE *fp, pardiff_t *ctx);
 static void process_file(FILE *fp, pardiff_t *ctx);
 static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx);
-static void detab_line(char *in_line);
+static void detab_line(char *in_line, size_t in_line_len);
 
 int
-pardiff_context_main(int argc, char *argv[])
+pardiff_context_main(const char *prog, FILE *fp)
 {
-    FILE *fp;
     pardiff_t ctx;
-
     memset(&ctx, 0, sizeof(ctx));
-    if (argc == 2) {
-        fp = stdin;
-    }
-    else {
-        fp = fopen(argv[2], "r");
-        if (!fp) {
-            perror("fopen");
-            return 1;
-        }
-    }
 
     ctx.window_width = get_term_width();
 
-    if (get_diff_file_names(fp, &ctx) == 1) {
+    if (get_diff_file_names(prog, fp, &ctx) == 1) {
         return 1;
     }
     process_file(fp, &ctx);
     return 0;
 }
 
-static int add_list(list_t *list, char *in_line)
+static int add_list(list_t *list, const char *in_line)
 {
     list_element_t *element;
 
@@ -314,7 +302,7 @@ static void process_file(FILE *fp, pardiff_t *ctx)
         }
         linenum++;
         line[strlen(line)-1] = '\0';
-        detab_line(line);
+        detab_line(line, sizeof(line));
         cp = strstr(line, "**********");
         if (cp == line) {
             state = 1;
@@ -333,7 +321,11 @@ static void process_file(FILE *fp, pardiff_t *ctx)
                 cp += 4;
                 for (ep = cp; *ep && *ep != ' '; ep++)
                     ;
+#ifdef _MSC_VER
+                strncat_s(ctx->linenum1, sizeof(ctx->linenum1), cp, ep-cp);
+#else
                 strncat(ctx->linenum1, cp, ep-cp);
+#endif
 
                 free_list(&list1);
                 free_list(&list2);
@@ -348,14 +340,17 @@ static void process_file(FILE *fp, pardiff_t *ctx)
                 cp += 4;
                 for (ep = cp; *ep && *ep != ' '; ep++)
                     ;
+#ifdef _MSC_VER
+                strncat_s(ctx->linenum2, sizeof(ctx->linenum2), cp, ep-cp);
+#else
                 strncat(ctx->linenum2, cp, ep-cp);
+#endif
             }
             else {
                 if (line[0] == '!') {
                     if (ctx->change1 == -1) {
                         ctx->change1 = linenum;
                     }
-
                 }
                 add_list(&list1, line);
             }
@@ -372,7 +367,7 @@ static void process_file(FILE *fp, pardiff_t *ctx)
     print_lists(&list1, &list2, ctx);
 }
 
-int get_diff_file_names(FILE *fp, pardiff_t *ctx)
+int get_diff_file_names(const char *prog, FILE *fp, pardiff_t *ctx)
 {
     char line[PARDIFF_LINE_BUF_SIZE];
     char *cp;
@@ -381,7 +376,7 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
     if (fgets(line, sizeof(line)-1, fp)) {
         cp = strstr(line, "*** ");
         if (cp != line) {
-            fprintf(stderr, "pardiff: line 1 bad format\n");
+            fprintf(stderr, "%s: line 1 bad format\n", prog);
             return 1;
         }
         cp += 4;
@@ -392,15 +387,20 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
         /* empty input stream */
         return 1;
     }
-    ctx->file1 = (char *)malloc(ep - cp + 1);
+    const size_t file1_len = ep - cp;
+    ctx->file1 = (char *)malloc(file1_len + 1);
     if (!ctx->file1) abort();
-    strncpy(ctx->file1, cp, ep-cp);
+#ifdef _MSC_VER
+    strncpy_s(ctx->file1, file1_len + 1, cp, file1_len);
+#else
+    strncpy(ctx->file1, cp, file1_len);
+#endif
     ctx->file1[ep-cp] = '\0';
 
     if (fgets(line, sizeof(line)-1, fp)) {
         cp = strstr(line, "--- ");
         if (cp != line) {
-            fprintf(stderr, "pardiff: line 2 bad format\n");
+            fprintf(stderr, "%s: line 2 bad format\n", prog);
             return 1;
         }
         cp += 4;
@@ -409,14 +409,19 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
 
         ep = line + strlen(line) - 26;
     }
-    ctx->file2 = (char *)malloc(ep - cp + 1);
+    const size_t file2_len = ep - cp;
+    ctx->file2 = (char *)malloc(file2_len + 1);
     if (!ctx->file2) abort();
-    strncpy(ctx->file2, cp, ep-cp);
+#ifdef _MSC_VER
+    strncpy_s(ctx->file2, file2_len + 1, cp, file2_len);
+#else
+    strncpy(ctx->file2, cp, file2_len);
+#endif
     ctx->file1[ep-cp] = '\0';
     return 0;
 }
 
-static void detab_line(char *in_line)
+static void detab_line(char *in_line, size_t in_line_len)
 {
     char line_buf[PARDIFF_LINE_BUF_SIZE];
 
@@ -442,5 +447,9 @@ static void detab_line(char *in_line)
         }
     }
     line_buf[j++] = '\0';
+#ifdef _MSC_VER
+    strcpy_s(in_line, in_line_len, line_buf);
+#else
     strcpy(in_line, line_buf);
+#endif
 }
