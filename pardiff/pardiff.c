@@ -213,8 +213,12 @@ get_term_width(void)
 #ifdef PARDIFF_IS_DOS
 #ifdef _WIN32
     CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi)
-            || GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &csbi))
+    HANDLE conout = CreateFile("CONOUT$", GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 0, NULL);
+    const int coninfo_ok = (conout && GetConsoleScreenBufferInfo(conout, &csbi))
+                            || GetConsoleScreenBufferInfo(GetStdHandle(STD_ERROR_HANDLE), &csbi)
+                            || GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    if (conout) CloseHandle(conout);
+    if (coninfo_ok)
     {
         const int columns = csbi.srWindow.Right - csbi.srWindow.Left + 1;
         //const int rows = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
