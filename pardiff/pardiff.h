@@ -22,6 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #if !defined(__MSDOS__) && !defined(_WIN32)
 /* include files to determine the width of the output terminal */
@@ -45,7 +46,11 @@
 #define PARDIFF_LINE_BUF_SIZE 2048
 
 /* output width size if ioctl fails */
+#ifdef __MSDOS__
 #define PARDIFF_DFLT_TERM_WID 80
+#else
+#define PARDIFF_DFLT_TERM_WID 120
+#endif
 
 /*
  * Context diff filter

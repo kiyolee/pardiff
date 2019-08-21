@@ -14,6 +14,8 @@
 
 #include "pardiff.h"
 
+static int width_opt = -1;
+
 /* buffer to hold one line (similar to max size for vi) */
 static char nextline[PARDIFF_LINE_BUF_SIZE] = "";
 static char putline[PARDIFF_LINE_BUF_SIZE] = "";
@@ -199,16 +201,7 @@ put_other_sav(void)
 int
 get_term_width(void)
 {
-#ifdef _MSC_VER
-    char* cp = NULL;
-    size_t len = 0;
-    const int width = (_dupenv_s(&cp, &len, "PARDIFF_WIDTH") == 0 && cp) ? atoi(cp) : -1;
-    if (cp) free(cp);
-#else
-    const char *cp = getenv("PARDIFF_WIDTH");
-    const int width = (cp) ? atoi(cp) : -1;
-#endif
-    if (width > 0) return width;
+    if (width_opt > 0) return width_opt;
 
 #ifdef PARDIFF_IS_DOS
 #ifdef _WIN32
@@ -416,8 +409,11 @@ pardiff_main(const char *prog, FILE *fp)
 static int
 pardiff_usage(const char *prog)
 {
-    fprintf(stderr, "usage: %s [-C] [file]\n", prog);
-    fprintf(stderr, "  -C  parse context diff format\n");
+    fprintf(stderr,
+            "usage: %s [-C] [-w{width}] [file]\n"
+            "  -C            parse context diff format\n"
+            "  -w{width}     use specific console width\n",
+            prog);
     return 1;
 }
 
@@ -428,12 +424,45 @@ int
 main(int argc, char *argv[])
 {
     const char *const prog = argv[0];
-    const int context_mode = (argc > 1 && strcmp(argv[1], "-C") == 0);
-    const int argi = context_mode ? 2 : 1;
-    const char *const fn = (argc > argi) ? argv[argi] : NULL;
 
-    if (argc > (argi+1))
-        return pardiff_usage(argv[0]);
+    int context_mode = 0;
+
+    int argi = 1;
+    for (; argi < argc; ++argi)
+    {
+        const char* const arg = argv[argi];
+        if (strcmp(arg, "-C") == 0) {
+            context_mode = 1;
+            continue;
+        }
+        else if (strncmp(arg, "-w", 2) == 0)
+        {
+            const char *width_arg = NULL;
+            if (arg[2] == '\0') {
+                if (++argi >= argc) {
+                    argi = -1; break; /* missing width argument */
+                }
+                width_arg = argv[argi];
+            }
+            else {
+                width_arg = arg + 2;
+            }
+            const char *cp = width_arg;
+            while (isdigit(*cp)) ++cp;
+            int width = (cp > width_arg && *cp == '\0') ? atoi(width_arg) : -1;
+            if (width <= 0) {
+                argi = -1; break; /* invalid width argument */
+            }
+            width_opt = width;
+            continue;
+        }
+        break;
+    }
+
+    if ((argi+1) < argc)
+        return pardiff_usage(prog); /* excessive arguments */
+
+    const char *const fn = (argc > argi) ? argv[argi] : NULL;
 
     FILE* fp = NULL;
     if (!fn || strcmp(fn, "-") == 0) {
