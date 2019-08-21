@@ -420,7 +420,7 @@ static void detab_line(char *in_line)
 {
     char line_buf[PARDIFF_LINE_BUF_SIZE];
 
-    int  j = 0;
+    int j = 0;
     for (int i = 0, c_count = 0; in_line[i]; i++) {
         /*
          * Count characters on input line
@@ -429,10 +429,10 @@ static void detab_line(char *in_line)
         if (in_line[i] == '\t') {
             /*
              * Loop puts spaces up to tabstop position before nth tabstop.
-             * Trailing printf puts space in nth tabstop position.  c_count
-             * is already right for last space put.
+             * Trailing printf puts space in nth tabstop position.
+             * c_count is already right for last space put.
              */
-            for(; c_count % TAB_STOP != 0;  j++, c_count++) {
+            for(; c_count % TAB_STOP != 0; j++, c_count++) {
                 line_buf[j] = ' ';
             }
             line_buf[j++] = ' ';

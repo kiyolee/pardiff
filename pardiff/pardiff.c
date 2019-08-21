@@ -30,12 +30,12 @@ static int expand_tab_option = 1;
 /* parser states */
 typedef enum parser_states {
     psUnknown,
-    psNeedCmd,                  /* looking for next a, d or c */
-    psEchoingF1,                /* copying d text */
-    psEchoingF2,                /* copying a text */
-    psSavingF1,                 /* saving file 1 c text */
-    psChewingSep,               /* get rid of dashes between f1 and f2 c text */
-    psEchoingSav                /* outputting parallel text */
+    psNeedCmd,      /* looking for next a, d or c */
+    psEchoingF1,    /* copying d text */
+    psEchoingF2,    /* copying a text */
+    psSavingF1,     /* saving file 1 c text */
+    psChewingSep,   /* get rid of dashes between f1 and f2 c text */
+    psEchoingSav    /* outputting parallel text */
 } parserStates;
 
 static void
@@ -58,7 +58,7 @@ put_number_pair(int n1, int n2)
 }
 
 static void
-put_number_line(int  x1, int  x2, int  y1, int  y2, char c)
+put_number_line(int x1, int x2, int y1, int y2, char c)
 {
     got_input = 1;
     print_loop(left_fill, '-');
@@ -86,8 +86,7 @@ put_sep(void)
 static void
 put_line(char *str)
 {
-    /*
-     * Read one char from the string each time through, mapping into
+    /* Read one char from the string each time through, mapping into
      * one or more characters in the output line.
      */
     for (int i = 0, i_off = 0, put_i = 0, filling = 0; put_i < col_wid; ++i) {
