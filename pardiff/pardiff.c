@@ -86,14 +86,11 @@ put_sep(void)
 static void
 put_line(char *str)
 {
-    int i, i_off, put_i, tab_size;
-    int filling = 0;
-
     /*
      * Read one char from the string each time through, mapping into
      * one or more characters in the output line.
      */
-    for (i = i_off = 0, put_i = 0; put_i < col_wid; ++i) {
+    for (int i = 0, i_off = 0, put_i = 0, filling = 0; put_i < col_wid; ++i) {
         if (filling || (str[i] == '\n')) {
             putline[put_i++] = ' ';
             filling = 1;
@@ -101,7 +98,7 @@ put_line(char *str)
             /* Assume standard tab-stops and calculate how many spaces this
              * one looked like in the input file.
              */
-            tab_size = 8 - ((i + i_off) % 8);
+            int tab_size = 8 - ((i + i_off) % 8);
             i_off += tab_size - 1;
             for ( ; tab_size > 0; tab_size--) {
                 putline[put_i++] = ' ';
@@ -116,33 +113,30 @@ put_line(char *str)
 }
 
 /* array to save lines in */
-static char **sav_array;
+static char **sav_array = NULL;
 static int sav_arsz = 0;
 static int putting = 0;
-static int sav_ind, put_ind;
-#define SAV_GROW_INCR 10
+static int sav_ind = 0;
+static int put_ind = 0;
+static int const SAV_GROW_INCR = 10;
 
 static void
 init_new_sav_lines(void)
 {
-    int i;
-
-    for (i = sav_arsz - SAV_GROW_INCR; i < sav_arsz; ++i) {
-        sav_array[i] = (char *)malloc(sizeof(char)*(col_wid+1));
+    for (int i = sav_arsz - SAV_GROW_INCR; i < sav_arsz; ++i) {
+        sav_array[i] = (char *)malloc(sizeof(char) * ((size_t)col_wid + 1));
+        if (!sav_array[i]) abort();
     }
 }
 
 static void
 sav_line(char *str)
 {
-    int i;
-    int filling = 0;
-    char *sav_str;
-
     /* if first call, init things */
     if (sav_arsz == 0) {
         sav_arsz = SAV_GROW_INCR;
-        sav_array = (char **)malloc(sizeof(char *)*sav_arsz);
+        sav_array = (char **)malloc(sizeof(char *) * sav_arsz);
+        if (!sav_array) abort();
         init_new_sav_lines();
         sav_ind = 0;
     }
@@ -154,13 +148,17 @@ sav_line(char *str)
         putting = 0;
 
     } else if (sav_ind == sav_arsz) {
+        char** sav_array_new;
         sav_arsz += SAV_GROW_INCR;
-        sav_array = (char **)realloc((char *)sav_array, sizeof(char *)*sav_arsz);
+        sav_array_new = (char **)realloc(sav_array, sizeof(char *) * sav_arsz);
+        if (!sav_array_new) abort();
+        sav_array = sav_array_new;
         init_new_sav_lines();
     }
 
-    sav_str = sav_array[sav_ind];
-    for (i = 0; i < col_wid; ++i) {
+    char *sav_str = sav_array[sav_ind];
+    int i = 0;
+    for (int filling = 0; i < col_wid; ++i) {
         if (filling || (str[i] == '\n')) {
             sav_str[i] = ' ';
             filling = 1;
@@ -410,15 +408,14 @@ pardiff_usage(void)
 int
 main(int argc, char *argv[])
 {
-    int context_mode;
-    int argi;
-
-    /* cheezy arg parsing */
-    context_mode = 0;
     if (argc > 2) {
         return pardiff_usage();
     }
-    for (argi = 1; argi < argc; argi++) {
+
+    int context_mode = 0;
+
+    /* cheezy arg parsing */
+    for (int argi = 1; argi < argc; argi++) {
         switch (argv[argi][1]) {
         case 'C':
             context_mode = 1;

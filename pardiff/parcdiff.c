@@ -95,16 +95,12 @@ static int add_list(list_t *list, char *in_line)
 {
     list_element_t *element;
 
-    element = (list_element_t *) calloc(1, sizeof(list_element_t));
-    if (!element) {
-        return 1;
-    }
+    element = (list_element_t *)calloc(1, sizeof(list_element_t));
+    if (!element) abort();
 
     element->line = _strdup(in_line);
-    if (!element->line) {
-        free(element);
-        return 1;
-    }
+    if (!element->line) abort();
+
     if (list->head == NULL) {
         list->head = element;
         list->tail = list->head;
@@ -120,7 +116,6 @@ static int add_list(list_t *list, char *in_line)
 static int get_list_len(list_t *list)
 {
     int len = -1;
-
     if (list) {
         len = list->len;
     }
@@ -130,7 +125,6 @@ static int get_list_len(list_t *list)
 static char *get_list_first(list_t *list)
 {
     char *cp = NULL;
-
     if (list) {
         if (list->head) {
             list->cur = list->head;
@@ -156,11 +150,9 @@ static char *get_list_next(list_t *list)
 
 static void free_list(list_t *list)
 {
-    list_element_t *cur;
-    list_element_t *next;
-    cur = list->head;
+    list_element_t *cur = list->head;
     while (cur) {
-        next = cur->next;
+        list_element_t *next = cur->next;
         free(cur->line);
         free(cur);
         cur = next;
@@ -174,7 +166,6 @@ static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     char *cp2 = NULL;
     int len;
     int maxlen;
-    int i;
     int width1;
     int width2;
     int length_diff = 0;
@@ -230,11 +221,11 @@ static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     }
 
     printf("+%s", ctx->linenum1);
-    for (i = (int)strlen(ctx->linenum1); i < width1; i++) {
+    for (size_t i = strlen(ctx->linenum1); i < (size_t)width1; i++) {
         putchar('-');
     }
     printf("+%s", ctx->linenum2);
-    for (i = (int)strlen(ctx->linenum2); i < width2; i++) {
+    for (size_t i = strlen(ctx->linenum2); i < (size_t)width2; i++) {
         putchar('-');
     }
     printf("+\n");
@@ -291,11 +282,11 @@ static void print_lists(list_t *l1, list_t *l2, pardiff_t *ctx)
     } while (cp1 || cp2);
 
     putchar('+');
-    for (i = 0; i < width1; i++) {
+    for (int i = 0; i < width1; i++) {
         putchar('-');
     }
     putchar('+');
-    for (i = 0; i < width2; i++) {
+    for (int i = 0; i < width2; i++) {
         putchar('-');
     }
     putchar('+');
@@ -401,7 +392,8 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
         /* empty input stream */
         return 1;
     }
-    ctx->file1 = (char *) malloc(ep-cp+1);
+    ctx->file1 = (char *)malloc(ep - cp + 1);
+    if (!ctx->file1) abort();
     strncpy(ctx->file1, cp, ep-cp);
     ctx->file1[ep-cp] = '\0';
 
@@ -417,7 +409,8 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
 
         ep = line + strlen(line) - 26;
     }
-    ctx->file2 = (char *) malloc(ep-cp+1);
+    ctx->file2 = (char *)malloc(ep - cp + 1);
+    if (!ctx->file2) abort();
     strncpy(ctx->file2, cp, ep-cp);
     ctx->file1[ep-cp] = '\0';
     return 0;
@@ -426,11 +419,9 @@ int get_diff_file_names(FILE *fp, pardiff_t *ctx)
 static void detab_line(char *in_line)
 {
     char line_buf[PARDIFF_LINE_BUF_SIZE];
-    int  c_count;
-    int  i;
-    int  j;
 
-    for (i = 0, c_count = 0, j = 0; in_line[i]; i++) {
+    int  j = 0;
+    for (int i = 0, c_count = 0; in_line[i]; i++) {
         /*
          * Count characters on input line
          */
@@ -453,4 +444,3 @@ static void detab_line(char *in_line)
     line_buf[j++] = '\0';
     strcpy(in_line, line_buf);
 }
-
