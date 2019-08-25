@@ -1,0 +1,7 @@
+#!/bin/sh
+VERSION_H="`dirname $0`/../pardiff/version.h"
+if [ -r "$VERSION_H" ]; then
+  echo -n `awk -F\" '/\<_PARDIFF_VERSION\>/ { print $2 }' "$VERSION_H"`
+else
+  echo -n UNKNOWN
+fi

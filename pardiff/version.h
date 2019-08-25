@@ -1,0 +1,1 @@
+#define _PARDIFF_VERSION "0.9.5"

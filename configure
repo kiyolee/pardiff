@@ -579,7 +579,7 @@ PACKAGE_TARNAME='pardiff'
 PACKAGE_VERSION='0.9.5'
 PACKAGE_STRING='pardiff 0.9.5'
 PACKAGE_BUGREPORT=''
-PACKAGE_URL=''
+PACKAGE_URL='https://github.com/kiyolee/pardiff.git'
 
 ac_unique_file="pardiff/pardiff.c"
 ac_subst_vars='am__EXEEXT_FALSE
@@ -1329,6 +1329,7 @@ Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
 Report bugs to the package provider.
+pardiff home page: <https://github.com/kiyolee/pardiff.git>.
 _ACEOF
 ac_status=$?
 fi
@@ -1794,6 +1795,8 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+
+
 ac_aux_dir=
 for ac_dir in build-aux "$srcdir"/build-aux; do
   if test -f "$ac_dir/install-sh"; then
@@ -1821,7 +1824,6 @@ fi
 ac_config_guess="$SHELL $ac_aux_dir/config.guess"  # Please don't use this var.
 ac_config_sub="$SHELL $ac_aux_dir/config.sub"  # Please don't use this var.
 ac_configure="$SHELL $ac_aux_dir/configure"  # Please don't use this var.
-
 
 
 
@@ -4134,7 +4136,8 @@ $config_headers
 Configuration commands:
 $config_commands
 
-Report bugs to the package provider."
+Report bugs to the package provider.
+pardiff home page: <https://github.com/kiyolee/pardiff.git>."
 
 _ACEOF
 cat >>$CONFIG_STATUS <<_ACEOF || ac_write_fail=1
