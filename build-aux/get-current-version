@@ -1,7 +1,8 @@
 #!/bin/sh
+# No CR/LF is allowed in the output, that can cause problem for autoconf.
 VERSION_H="`dirname $0`/../pardiff/version.h"
 if [ -r "$VERSION_H" ]; then
-  echo -n `awk -F\" '/\<_PARDIFF_VERSION\>/ { print $2 }' "$VERSION_H"`
+  awk -F\" '/\<_PARDIFF_VERSION\>/ { printf $2 }' "$VERSION_H"
 else
   echo -n UNKNOWN
 fi
