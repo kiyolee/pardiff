@@ -1,6 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
+
 AC_INIT(pardiff,0.9.5)
+AC_CONFIG_AUX_DIR(build-aux)
 AC_CONFIG_SRCDIR(pardiff/pardiff.c)
+
 AM_INIT_AUTOMAKE
 
 AM_CONFIG_HEADER(config.h)
