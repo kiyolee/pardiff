@@ -16,7 +16,7 @@ AM_INIT_AUTOMAKE([1.16])
 AM_CONFIG_HEADER([config.h])
 
 dnl Checks for programs.
-AC_PROG_CC
+AC_PROG_CC_C99
 AC_PROG_RANLIB
 dnl Checks for libraries.
 
