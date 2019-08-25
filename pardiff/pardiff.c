@@ -410,7 +410,10 @@ static int
 pardiff_usage(const char *prog)
 {
     fprintf(stderr,
-            "usage: %s [-C] [-w{width}] [file]\n"
+            "pardiff " VERSION "\n"
+            "usage: %s [-h] [-v] [-C] [-w{width}] [file]\n"
+            "  -h            display this help and exit\n"
+            "  -v            output version information and exit\n"
             "  -C            parse context diff format\n"
             "  -w{width}     use specific console width\n",
             prog);

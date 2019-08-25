@@ -19,6 +19,13 @@
 
 #define _GNU_SOURCE
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#else
+#include "version.h"
+#define VERSION _PARDIFF_VERSION
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
