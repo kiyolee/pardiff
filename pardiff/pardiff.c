@@ -407,11 +407,39 @@ pardiff_main(const char *prog, FILE *fp)
 }
 
 static int
+do_pardiff(const char *prog, const char *fn, int context_mode)
+{
+    FILE *fp = NULL;
+    if (!fn || (fn[0] == '-' && fn[1] == '\0')) {
+        fp = stdin;
+    }
+    else {
+#ifdef _MSC_VER
+        if (fopen_s(&fp, fn, "r") != 0) fp = NULL;
+#else
+        fp = fopen(fn, "r");
+#endif
+        if (!fp) {
+            perror("fopen");
+            return -1;
+        }
+    }
+
+    const int rc = context_mode
+        ? pardiff_context_main(prog, fp)
+        : pardiff_main(prog, fp);
+
+    if (fp != stdin) fclose(fp);
+
+    return rc;
+}
+
+static int
 pardiff_usage(const char *prog)
 {
     fprintf(stderr,
             "pardiff " VERSION "\n"
-            "usage: %s [-h] [-v] [-C] [-w{width}] [file]\n"
+            "usage: %s [-h] [-v] [-C] [-w{width}] [file|-] ...\n"
             "  -h            display this help and exit\n"
             "  -v            output version information and exit\n"
             "  -C            parse context diff format\n"
@@ -433,17 +461,13 @@ main(int argc, char *argv[])
     int argi = 1;
     for (; argi < argc; ++argi)
     {
-        const char* const arg = argv[argi];
-        if (strcmp(arg, "-C") == 0) {
-            context_mode = 1;
-            continue;
-        }
-        else if (strncmp(arg, "-w", 2) == 0)
-        {
+        const char *const arg = argv[argi];
+        if (arg[0] != '-' || arg[1] == '\0') break;
+        if (arg[1] == 'w') {
             const char *width_arg = NULL;
             if (arg[2] == '\0') {
                 if (++argi >= argc) {
-                    argi = -1; break; /* missing width argument */
+                    return pardiff_usage(prog); /* missing width argument */
                 }
                 width_arg = argv[argi];
             }
@@ -454,40 +478,53 @@ main(int argc, char *argv[])
             while (isdigit(*cp)) ++cp;
             int width = (cp > width_arg && *cp == '\0') ? atoi(width_arg) : -1;
             if (width <= 0) {
-                argi = -1; break; /* invalid width argument */
+                return pardiff_usage(prog); /* invalid width argument */
             }
             width_opt = width;
-            continue;
         }
-        break;
-    }
-
-    if ((argi+1) < argc)
-        return pardiff_usage(prog); /* excessive arguments */
-
-    const char *const fn = (argc > argi) ? argv[argi] : NULL;
-
-    FILE* fp = NULL;
-    if (!fn || strcmp(fn, "-") == 0) {
-        fp = stdin;
-    }
-    else {
-#ifdef _MSC_VER
-        if (fopen_s(&fp, fn, "r") != 0) fp = NULL;
-#else
-        fp = fopen(fn, "r");
-#endif
-        if (!fp) {
-            perror("fopen");
-            return 1;
+        else if (arg[1] == '-' && arg[2] == '\0') {
+            ++argi;
+            break;
+        }
+        else {
+            const char* ap = arg;
+            while (*++ap) {
+                switch (*ap) {
+                case 'h':
+                default:
+                    return pardiff_usage(prog);
+                case 'v':
+                    printf("pardiff " VERSION "\n");
+                    return 0;
+                case 'C':
+                    context_mode = 1;
+                    break;
+                }
+            }
         }
     }
 
-    const int rc = context_mode
-        ? pardiff_context_main(prog, fp)
-        : pardiff_main(prog, fp);
+    if (argi >= argc) {
+        return do_pardiff(prog, NULL, context_mode);
+    }
 
-    if (fp != stdin) fclose(fp);
+    const int m = (argc - argi) > 1;
+    int rc = 0;
+    int stdin_done = 0;
+    for (; argi < argc; ++argi) {
+        const char *const fn = argv[argi];
+        if (*fn == '\0') continue;
+        const int do_stdin = (fn[0] == '-' && fn[1] == '\0');
+        if (do_stdin && stdin_done) continue;
+        if (m) {
+            if (do_stdin) printf("stdin:\n");
+            else printf("file: %s\n", fn);
+        }
+        const int do_rc = do_pardiff(prog, fn, context_mode);
+        if (do_stdin) stdin_done = 1;
+        if (rc == 0) rc = do_rc;
+        if (m && (argi + 1) < argc) putchar('\n');
+    }
 
     return rc;
 }
