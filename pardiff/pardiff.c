@@ -475,7 +475,7 @@ main(int argc, char *argv[])
                 width_arg = arg + 2;
             }
             const char *cp = width_arg;
-            while (isdigit(*cp)) ++cp;
+            while (isdigit((int)*cp)) ++cp;
             int width = (cp > width_arg && *cp == '\0') ? atoi(width_arg) : -1;
             if (width <= 0) {
                 return pardiff_usage(prog); /* invalid width argument */
