@@ -443,7 +443,7 @@ pardiff_usage(const char *prog)
             "  -h            display this help and exit\n"
             "  -v            output version information and exit\n"
             "  -C            parse context diff format\n"
-            "  -w{width}     use specific console width\n",
+            "  -w{width}     use specific output width\n",
             prog);
     return 1;
 }
