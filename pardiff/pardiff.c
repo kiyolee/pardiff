@@ -508,7 +508,7 @@ main(int argc, char *argv[])
         return do_pardiff(prog, NULL, context_mode);
     }
 
-    const int m = (argc - argi) > 1;
+    const int m = (argi + 1) < argc;
     int rc = 0;
     int stdin_done = 0;
     for (; argi < argc; ++argi) {
