@@ -17,7 +17,7 @@ AM_CONFIG_HEADER([config.h])
 
 dnl Checks for programs.
 AC_PROG_CC_C99
-AC_PROG_RANLIB
+
 dnl Checks for libraries.
 
 dnl Checks for header files.
