@@ -491,15 +491,15 @@ main(int argc, char *argv[])
             const char* ap = arg;
             while (*++ap) {
                 switch (*ap) {
-                case 'h':
-                default:
-                    return pardiff_usage(prog);
-                case 'v':
-                    printf("pardiff " VERSION "\n");
-                    return 0;
                 case 'C':
                     context_mode = 1;
                     break;
+                case 'v':
+                    printf("pardiff " VERSION "\n");
+                    return 0;
+                case 'h':
+                default:
+                    return pardiff_usage(prog);
                 }
             }
         }
