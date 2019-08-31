@@ -439,12 +439,13 @@ pardiff_usage(const char *prog)
 {
     fprintf(stderr,
             "pardiff " VERSION "\n"
-            "usage: %s [-h] [-v] [-C] [-w{width}] [file|-] ...\n"
-            "  -h            display this help and exit\n"
-            "  -v            output version information and exit\n"
+            "usage: %s [options] [file|-] ...\n"
+            "options:\n"
             "  -C            parse context diff format\n"
-            "  -w{width}     use specific output width\n",
-            prog);
+            "  -w{width}     use specific width instead of terminal width\n"
+            "  -v            print version information and exit\n"
+            "  -h            print this help and exit\n"
+            , prog);
     return 1;
 }
 
