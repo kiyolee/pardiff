@@ -7,7 +7,7 @@ AC_INIT([pardiff],
         [],
         [pardiff],
         [https://github.com/kiyolee/pardiff.git])
-AC_CONFIG_SRCDIR([pardiff/pardiff.c])
+AC_CONFIG_SRCDIR([src/pardiff.c])
 
 AC_CONFIG_AUX_DIR([build-aux])
 
@@ -26,4 +26,4 @@ dnl Checks for typedefs, structures, and compiler characteristics.
 
 dnl Checks for library functions.
 
-AC_OUTPUT([Makefile pardiff/Makefile])
+AC_OUTPUT([Makefile src/Makefile])

@@ -1,4 +1,4 @@
-SUBDIRS = pardiff 
+SUBDIRS = src
 
 EXTRA_DIST = AUTHORS COPYING ChangeLog INSTALL README.md README.pardiff TODO pardiff.lsm 
 
