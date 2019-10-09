@@ -32,6 +32,7 @@ insert_final_newline = true
 [*.{c,cc,cpp,cxx,h,hh,hpp,hxx}]
 charset = unset
 end_of_line = lf
+tab_width = 8
 indent_size = 4
 indent_style = space
 insert_final_newline = true
