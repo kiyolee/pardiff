@@ -8,6 +8,6 @@ touch -c configure
 sleep 1
 touch -c Makefile.in
 sleep 1
-touch -c pardiff/Makefile.in
+touch -c src/Makefile.in
 sleep 1
 touch -c config.h.in
